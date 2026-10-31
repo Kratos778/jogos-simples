@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste de Personalidade</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .top-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    a.back { color: #00d2ff; text-decoration: none; }
+    h1 { font-size: 1.5rem; }
+    .container {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 25px;
+      max-width: 500px;
+      width: 100%;
+    }
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .options button:hover { background: rgba(255,255,255,0.18); }
+    .result {
+      text-align: center;
+      display: none;
+    }
+    .result h2 {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      color: #00d2ff;
+    }
+    .result p {
+      color: #ccc;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 12px 28px;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="index.html" class="back">← Voltar</a>
+    <h1>Teste de Personalidade</h1>
+    <div></div>
+  </div>
+
+  <div class="container" id="quizBox">
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <div class="container result" id="resultBox">
+    <h2 id="resultTitle"></h2>
+    <p id="resultDesc"></p>
+    <button class="btn" onclick="startTest()">Fazer de Novo</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "Quando estás com um grupo de amigos, tu normalmente...",
+        options: [
+          { text: "Falas bastante e animas o ambiente", type: "extro" },
+          { text: "Observas e falas quando tens algo importante a dizer", type: "intro" },
+          { text: "Adaptas-te conforme o ambiente", type: "flex" }
+        ]
+      },
+      {
+        q: "Diante de um problema difícil, a tua primeira reação é...",
+        options: [
+          { text: "Agir rápido e resolver", type: "acao" },
+          { text: "Pensar bem antes de decidir", type: "pens" },
+          { text: "Pedir opinião de alguém de confiança", type: "social" }
+        ]
+      },
+      {
+        q: "O teu fim de semana ideal seria...",
+        options: [
+          { text: "Sair, conhecer gente nova ou ir a um evento", type: "extro" },
+          { text: "Ficar em casa a relaxar ou a ver séries", type: "intro" },
+          { text: "Um pouco dos dois, depende do humor", type: "flex" }
+        ]
+      },
+      {
+        q: "Quando alguém te critica, tu...",
+        options: [
+          { text: "Ficas chateado mas tentas melhorar", type: "sens" },
+          { text: "Analisas se faz sentido e segues em frente", type: "pens" },
+          { text: "Defendes o teu ponto de vista", type: "acao" }
+        ]
+      },
+      {
+        q: "O que mais valorizas numa amizade?",
+        options: [
+          { text: "Lealdade e confiança", type: "sens" },
+          { text: "Conversas profundas e inteligência", type: "pens" },
+          { text: "Diversão e aventuras juntos", type: "extro" }
+        ]
+      }
+    ];
+
+    const results = {
+      extro: {
+        title: "O Comunicador",
+        desc: "Tu és energético, sociável e gostas de estar com pessoas. Tens facilidade em fazer amigos e animar qualquer ambiente. O teu ponto forte é a comunicação."
+      },
+      intro: {
+        title: "O Observador",
+        desc: "Tu és mais reservado, pensativo e gostas de momentos de calma. Observas bastante antes de agir e tens uma visão profunda das coisas. O teu ponto forte é a reflexão."
+      },
+      flex: {
+        title: "O Adaptável",
+        desc: "Tu consegues equilibrar bem momentos sociais e momentos sozinho. Adaptas-te facilmente a diferentes situações. O teu ponto forte é a flexibilidade."
+      },
+      acao: {
+        title: "O Determinado",
+        desc: "Tu és prático, decidido e gostas de resolver as coisas. Não ficas parado quando há um problema. O teu ponto forte é a ação."
+      },
+      pens: {
+        title: "O Analítico",
+        desc: "Tu pensas bastante antes de tomar decisões. Gostas de entender o porquê das coisas. O teu ponto forte é a análise."
+      },
+      sens: {
+        title: "O Empático",
+        desc: "Tu és sensível aos sentimentos dos outros e valorizas muito as relações. O teu ponto forte é a empatia."
+      },
+      social: {
+        title: "O Colaborativo",
+        desc: "Tu valorizas a opinião dos outros e gostas de trabalhar em equipa. O teu ponto forte é a colaboração."
+      }
+    };
+
+    let current = 0;
+    let scores = {};
+
+    function startTest() {
+      current = 0;
+      scores = {};
+      document.getElementById('quizBox').style.display = 'block';
+      document.getElementById('resultBox').style.display = 'none';
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById('question').textContent = q.q;
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.textContent = opt.text;
+        btn.onclick = () => selectOption(opt.type);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function selectOption(type) {
+      scores[type] = (scores[type] || 0) + 1;
+      current++;
+
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      let maxType = 'flex';
+      let maxScore = 0;
+
+      for (const type in scores) {
+        if (scores[type] > maxScore) {
+          maxScore = scores[type];
+          maxType = type;
+        }
+      }
+
+      const res = results[maxType] || results.flex;
+      document.getElementById('quizBox').style.display = 'none';
+      document.getElementById('resultBox').style.display = 'block';
+      document.getElementById('resultTitle').textContent = res.title;
+      document.getElementById('resultDesc').textContent = res.desc;
+    }
+
+    startTest();
+  </script>
+</body>
+</html>
