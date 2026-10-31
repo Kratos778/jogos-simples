@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Rápido</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .top-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    a.back { color: #00d2ff; text-decoration: none; }
+    h1 { font-size: 1.6rem; }
+    .container {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 25px;
+      max-width: 500px;
+      width: 100%;
+    }
+    .progress {
+      height: 6px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .question {
+      font-size: 1.25rem;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .options button:hover { background: rgba(255,255,255,0.18); }
+    .options button.correct { background: #2ecc71; border-color: #2ecc71; }
+    .options button.wrong { background: #e74c3c; border-color: #e74c3c; }
+    .score {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-top: 15px;
+    }
+    .result {
+      text-align: center;
+      display: none;
+    }
+    .result h2 { margin-bottom: 15px; color: #00d2ff; }
+    .btn {
+      margin-top: 20px;
+      padding: 12px 28px;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="index.html" class="back">← Voltar</a>
+    <h1>Quiz Rápido</h1>
+    <div></div>
+  </div>
+
+  <div class="container" id="quizBox">
+    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="score">Pontuação: <strong id="score">0</strong></div>
+  </div>
+
+  <div class="container result" id="resultBox">
+    <h2>Fim do Quiz!</h2>
+    <p>Acertaste <strong id="finalScore">0</strong> de <strong id="totalQ">0</strong></p>
+    <button class="btn" onclick="startQuiz()">Jogar de Novo</button>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "Qual é a capital de Angola?", options: ["Luanda", "Benguela", "Huambo", "Lubango"], answer: 0 },
+      { q: "Quantos continentes existem?", options: ["5", "6", "7", "8"], answer: 2 },
+      { q: "Qual planeta é conhecido como Planeta Vermelho?", options: ["Vénus", "Marte", "Júpiter", "Saturno"], answer: 1 },
+      { q: "Quem pintou a Mona Lisa?", options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"], answer: 2 },
+      { q: "Qual é o maior oceano do mundo?", options: ["Atlântico", "Índico", "Ártico", "Pacífico"], answer: 3 },
+      { q: "Em que ano Angola ficou independente?", options: ["1970", "1975", "1980", "1965"], answer: 1 },
+      { q: "Qual é o animal mais rápido do mundo?", options: ["Leopardo", "Guepardo", "Falcão-peregrino", "Antílope"], answer: 2 },
+      { q: "Quantos lados tem um hexágono?", options: ["5", "6", "7", "8"], answer: 1 }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function startQuiz() {
+      current = 0;
+      score = 0;
+      document.getElementById('quizBox').style.display = 'block';
+      document.getElementById('resultBox').style.display = 'none';
+      document.getElementById('score').textContent = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById('question').textContent = q.q;
+      document.getElementById('progress').style.width = ((current / questions.length) * 100) + '%';
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.onclick = () => selectAnswer(i, btn);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(index, btn) {
+      const q = questions[current];
+      const buttons = document.querySelectorAll('.options button');
+      buttons.forEach(b => b.onclick = null);
+
+      if (index === q.answer) {
+        btn.classList.add('correct');
+        score++;
+        document.getElementById('score').textContent = score;
+      } else {
+        btn.classList.add('wrong');
+        buttons[q.answer].classList.add('correct');
+      }
+
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          document.getElementById('quizBox').style.display = 'none';
+          document.getElementById('resultBox').style.display = 'block';
+          document.getElementById('finalScore').textContent = score;
+          document.getElementById('totalQ').textContent = questions.length;
+          document.getElementById('progress').style.width = '100%';
+        }
+      }, 1000);
+    }
+
+    startQuiz();
+  </script>
+</body>
+</html>
