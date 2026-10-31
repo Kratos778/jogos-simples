@@ -2,114 +2,526 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogos Simples - Diversão Rápida</title>
-  <meta name="description" content="Jogos simples e divertidos no navegador: Memória, Quiz, Reflexo e Testes de Personalidade.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Game Oi - Jogos Simples</title>
+  <meta name="description" content="Jogos simples e divertidos: Memória, Quiz, Reflexo e Teste de Personalidade. Joga no telemóvel ou no PC.">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0f0c29;
+      background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
       color: #fff;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
+      overflow-x: hidden;
     }
-    header {
-      text-align: center;
-      margin: 30px 0 40px;
-    }
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 8px;
+    header { text-align: center; padding: 18px 15px 10px; }
+    header h1 {
+      font-size: 1.7rem;
       background: linear-gradient(90deg, #00d2ff, #3a7bd5);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
     }
-    p.subtitle {
-      color: #aaa;
-      font-size: 1rem;
+    header p { color: #999; font-size: 0.9rem; }
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 12px 15px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      position: sticky;
+      top: 0;
+      background: rgba(15,12,41,0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-      max-width: 900px;
-      width: 100%;
-    }
-    .game-card {
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto;
+      padding: 10px 18px;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 28px 22px;
-      text-align: center;
-      transition: all 0.25s ease;
+      border-radius: 25px;
+      color: #ccc;
+      font-size: 0.9rem;
       cursor: pointer;
-      text-decoration: none;
-      color: inherit;
+      white-space: nowrap;
+      transition: all 0.2s;
     }
-    .game-card:hover {
-      transform: translateY(-6px);
-      background: rgba(255,255,255,0.14);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    .tab.active {
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      color: #fff;
+      border-color: transparent;
+      font-weight: 600;
     }
-    .game-icon {
-      font-size: 3rem;
-      margin-bottom: 14px;
+    .game-section {
+      display: none;
+      padding: 20px 15px 40px;
+      max-width: 520px;
+      margin: 0 auto;
+      animation: fadeIn 0.3s ease;
     }
-    .game-card h2 {
-      font-size: 1.3rem;
-      margin-bottom: 8px;
+    .game-section.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .game-card p {
-      color: #bbb;
+    .card-box {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .btn-main {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 12px 26px;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      border: none;
+      border-radius: 30px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      max-width: 280px;
+    }
+    .btn-main:active { opacity: 0.85; }
+    .info-row {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
       font-size: 0.95rem;
-      line-height: 1.4;
+      color: #bbb;
     }
-    footer {
-      margin-top: 50px;
-      color: #666;
-      font-size: 0.85rem;
-      text-align: center;
+    .info-row strong { color: #fff; }
+    #memory-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
     }
+    .mem-card {
+      aspect-ratio: 1;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.25s;
+      user-select: none;
+    }
+    .mem-card.flipped, .mem-card.matched {
+      background: rgba(255,255,255,0.18);
+      border-color: #00d2ff;
+    }
+    .mem-card.matched { opacity: 0.55; }
+    #memory-win { color: #00d2ff; text-align: center; margin-top: 14px; font-size: 1.15rem; display: none; }
+    #quiz-progress {
+      height: 5px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 3px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    #quiz-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    #quiz-question { font-size: 1.15rem; margin-bottom: 18px; line-height: 1.4; }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.98rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .quiz-opt.correct { background: #27ae60; border-color: #27ae60; }
+    .quiz-opt.wrong { background: #c0392b; border-color: #c0392b; }
+    #quiz-result { text-align: center; display: none; }
+    #quiz-result h2 { color: #00d2ff; margin-bottom: 10px; }
+    #reflex-box {
+      width: 100%;
+      height: 200px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 18px;
+      transition: background 0.12s;
+    }
+    #reflex-box.waiting { background: #c0392b; }
+    #reflex-box.ready { background: #27ae60; }
+    #reflex-box.early { background: #d68910; }
+    #reflex-instruction { color: #bbb; font-size: 0.95rem; margin-bottom: 16px; line-height: 1.45; text-align: center; }
+    #pers-question { font-size: 1.15rem; margin-bottom: 18px; line-height: 1.4; }
+    .pers-opt {
+      display: block;
+      width: 100%;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.98rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    #pers-result { text-align: center; display: none; }
+    #pers-result h2 { color: #00d2ff; margin-bottom: 10px; font-size: 1.4rem; }
+    #pers-result p { color: #ccc; line-height: 1.5; margin-bottom: 18px; }
+    footer { text-align: center; padding: 20px; color: #555; font-size: 0.8rem; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Jogos Simples</h1>
-    <p class="subtitle">Diversão rápida no navegador</p>
+    <h1>Game Oi</h1>
+    <p>Jogos simples • Telemóvel e PC</p>
   </header>
 
-  <div class="games-grid">
-    <a href="memoria.html" class="game-card">
-      <div class="game-icon">🃏</div>
-      <h2>Jogo da Memória</h2>
-      <p>Encontre os pares iguais. Treina a memória e diverte.</p>
-    </a>
-
-    <a href="quiz.html" class="game-card">
-      <div class="game-icon">❓</div>
-      <h2>Quiz Rápido</h2>
-      <p>Perguntas rápidas de cultura geral. Quantas acertas?</p>
-    </a>
-
-    <a href="reflexo.html" class="game-card">
-      <div class="game-icon">⚡</div>
-      <h2>Jogo de Reflexo</h2>
-      <p>Clique o mais rápido possível quando a cor mudar!</p>
-    </a>
-
-    <a href="personalidade.html" class="game-card">
-      <div class="game-icon">🧠</div>
-      <h2>Teste de Personalidade</h2>
-      <p>Descobre um pouco mais sobre ti com este teste divertido.</p>
-    </a>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-game="memory">🃏 Memória</div>
+    <div class="tab" data-game="quiz">❓ Quiz</div>
+    <div class="tab" data-game="reflex">⚡ Reflexo</div>
+    <div class="tab" data-game="pers">🧠 Personalidade</div>
   </div>
 
-  <footer>
-    Feito para divertir • Joga quantas vezes quiseres
-  </footer>
+  <!-- JOGO DA MEMÓRIA -->
+  <section class="game-section active" id="game-memory">
+    <div class="card-box">
+      <div class="info-row">
+        <span>Tentativas: <strong id="mem-moves">0</strong></span>
+        <span>Pares: <strong id="mem-pairs">0</strong>/8</span>
+      </div>
+      <div id="memory-board"></div>
+      <div id="memory-win">Parabéns! Completaste!</div>
+      <div style="text-align:center">
+        <button class="btn-main" onclick="MemoryGame.start()">Novo Jogo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ RÁPIDO -->
+  <section class="game-section" id="game-quiz">
+    <div class="card-box" id="quiz-box">
+      <div id="quiz-progress"><div id="quiz-progress-bar"></div></div>
+      <div id="quiz-question"></div>
+      <div id="quiz-options"></div>
+      <div class="info-row" style="margin-top:14px">
+        <span>Pontuação: <strong id="quiz-score">0</strong></span>
+      </div>
+    </div>
+    <div class="card-box" id="quiz-result">
+      <h2>Fim do Quiz!</h2>
+      <p>Acertaste <strong id="quiz-final">0</strong> de <strong id="quiz-total">0</strong></p>
+      <button class="btn-main" onclick="QuizGame.start()">Jogar de Novo</button>
+    </div>
+  </section>
+
+  <!-- JOGO DE REFLEXO -->
+  <section class="game-section" id="game-reflex">
+    <div class="card-box">
+      <p id="reflex-instruction">Clica na caixa para começar.<br>Espera ficar VERDE e clica o mais rápido possível!</p>
+      <div id="reflex-box" class="waiting" onclick="ReflexGame.click()">Clica para começar</div>
+      <div class="info-row">
+        <span>Tempo: <strong id="reflex-time">-</strong></span>
+        <span>Melhor: <strong id="reflex-best">-</strong></span>
+      </div>
+      <div style="text-align:center">
+        <button class="btn-main" onclick="ReflexGame.reset()">Reiniciar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTE DE PERSONALIDADE -->
+  <section class="game-section" id="game-pers">
+    <div class="card-box" id="pers-box">
+      <div id="pers-question"></div>
+      <div id="pers-options"></div>
+    </div>
+    <div class="card-box" id="pers-result">
+      <h2 id="pers-title"></h2>
+      <p id="pers-desc"></p>
+      <button class="btn-main" onclick="PersGame.start()">Fazer de Novo</button>
+    </div>
+  </section>
+
+  <footer>Game Oi • Joga quantas vezes quiseres</footer>
+
+  <script>
+    // TABS
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.game-section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('game-' + tab.dataset.game).classList.add('active');
+      });
+    });
+
+    // MEMORY GAME (código isolado)
+    const MemoryGame = (() => {
+      const emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'];
+      let cards = [], flipped = [], matched = 0, moves = 0, lock = false;
+      function start() {
+        cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+        flipped = []; matched = 0; moves = 0; lock = false;
+        document.getElementById('mem-moves').textContent = 0;
+        document.getElementById('mem-pairs').textContent = 0;
+        document.getElementById('memory-win').style.display = 'none';
+        const board = document.getElementById('memory-board');
+        board.innerHTML = '';
+        cards.forEach((emoji, i) => {
+          const el = document.createElement('div');
+          el.className = 'mem-card';
+          el.dataset.emoji = emoji;
+          el.onclick = () => flip(el);
+          board.appendChild(el);
+        });
+      }
+      function flip(card) {
+        if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+        card.classList.add('flipped');
+        card.textContent = card.dataset.emoji;
+        flipped.push(card);
+        if (flipped.length === 2) {
+          moves++;
+          document.getElementById('mem-moves').textContent = moves;
+          lock = true;
+          const [a, b] = flipped;
+          if (a.dataset.emoji === b.dataset.emoji) {
+            a.classList.add('matched'); b.classList.add('matched');
+            matched++;
+            document.getElementById('mem-pairs').textContent = matched;
+            flipped = []; lock = false;
+            if (matched === 8) document.getElementById('memory-win').style.display = 'block';
+          } else {
+            setTimeout(() => {
+              a.classList.remove('flipped'); b.classList.remove('flipped');
+              a.textContent = ''; b.textContent = '';
+              flipped = []; lock = false;
+            }, 750);
+          }
+        }
+      }
+      start();
+      return { start };
+    })();
+
+    // QUIZ GAME (código isolado)
+    const QuizGame = (() => {
+      const questions = [
+        { q: "Qual é a capital de Angola?", opts: ["Luanda","Benguela","Huambo","Lubango"], a: 0 },
+        { q: "Quantos continentes existem?", opts: ["5","6","7","8"], a: 2 },
+        { q: "Qual planeta é o Planeta Vermelho?", opts: ["Vénus","Marte","Júpiter","Saturno"], a: 1 },
+        { q: "Quem pintou a Mona Lisa?", opts: ["Van Gogh","Picasso","Leonardo da Vinci","Michelangelo"], a: 2 },
+        { q: "Qual é o maior oceano?", opts: ["Atlântico","Índico","Ártico","Pacífico"], a: 3 },
+        { q: "Em que ano Angola ficou independente?", opts: ["1970","1975","1980","1965"], a: 1 },
+        { q: "Qual animal é o mais rápido?", opts: ["Leopardo","Guepardo","Falcão-peregrino","Antílope"], a: 2 },
+        { q: "Quantos lados tem um hexágono?", opts: ["5","6","7","8"], a: 1 }
+      ];
+      let cur = 0, score = 0;
+      function start() {
+        cur = 0; score = 0;
+        document.getElementById('quiz-box').style.display = 'block';
+        document.getElementById('quiz-result').style.display = 'none';
+        document.getElementById('quiz-score').textContent = 0;
+        show();
+      }
+      function show() {
+        const q = questions[cur];
+        document.getElementById('quiz-question').textContent = q.q;
+        document.getElementById('quiz-progress-bar').style.width = (cur / questions.length * 100) + '%';
+        const box = document.getElementById('quiz-options');
+        box.innerHTML = '';
+        q.opts.forEach((opt, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'quiz-opt';
+          btn.textContent = opt;
+          btn.onclick = () => answer(i, btn);
+          box.appendChild(btn);
+        });
+      }
+      function answer(i, btn) {
+        const q = questions[cur];
+        const btns = document.querySelectorAll('.quiz-opt');
+        btns.forEach(b => b.onclick = null);
+        if (i === q.a) {
+          btn.classList.add('correct');
+          score++;
+          document.getElementById('quiz-score').textContent = score;
+        } else {
+          btn.classList.add('wrong');
+          btns[q.a].classList.add('correct');
+        }
+        setTimeout(() => {
+          cur++;
+          if (cur < questions.length) show();
+          else {
+            document.getElementById('quiz-box').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+            document.getElementById('quiz-final').textContent = score;
+            document.getElementById('quiz-total').textContent = questions.length;
+            document.getElementById('quiz-progress-bar').style.width = '100%';
+          }
+        }, 900);
+      }
+      start();
+      return { start };
+    })();
+
+    // REFLEX GAME (código isolado)
+    const ReflexGame = (() => {
+      let state = 'idle', startTime = 0, timer = null;
+      let best = localStorage.getItem('reflexBest') || null;
+      if (best) document.getElementById('reflex-best').textContent = best + ' ms';
+      function click() {
+        const box = document.getElementById('reflex-box');
+        const inst = document.getElementById('reflex-instruction');
+        if (state === 'idle') {
+          state = 'waiting';
+          box.className = 'waiting';
+          box.textContent = 'Espera...';
+          inst.textContent = 'Não cliques ainda...';
+          const delay = 1400 + Math.random() * 3200;
+          timer = setTimeout(() => {
+            state = 'ready';
+            startTime = Date.now();
+            box.className = 'ready';
+            box.textContent = 'CLICA AGORA!';
+            inst.textContent = 'Rápido!';
+          }, delay);
+        } else if (state === 'waiting') {
+          clearTimeout(timer);
+          state = 'idle';
+          box.className = 'early';
+          box.textContent = 'Clicaste cedo demais!';
+          inst.textContent = 'Espera a caixa ficar verde...';
+          setTimeout(() => {
+            box.className = 'waiting';
+            box.textContent = 'Clica para tentar de novo';
+            inst.innerHTML = 'Clica na caixa para começar.<br>Espera ficar VERDE e clica o mais rápido possível!';
+          }, 1400);
+        } else if (state === 'ready') {
+          const ms = Date.now() - startTime;
+          state = 'idle';
+          box.className = 'waiting';
+          box.textContent = ms + ' ms';
+          document.getElementById('reflex-time').textContent = ms + ' ms';
+          if (!best || ms < best) {
+            best = ms;
+            localStorage.setItem('reflexBest', best);
+            document.getElementById('reflex-best').textContent = best + ' ms';
+            inst.textContent = 'Novo recorde! 🎉';
+          } else {
+            inst.textContent = 'Bom tempo! Tenta bater o teu recorde.';
+          }
+        }
+      }
+      function reset() {
+        clearTimeout(timer);
+        state = 'idle';
+        document.getElementById('reflex-box').className = 'waiting';
+        document.getElementById('reflex-box').textContent = 'Clica para começar';
+        document.getElementById('reflex-instruction').innerHTML = 'Clica na caixa para começar.<br>Espera ficar VERDE e clica o mais rápido possível!';
+        document.getElementById('reflex-time').textContent = '-';
+      }
+      return { click, reset };
+    })();
+
+    // PERSONALITY TEST (código isolado)
+    const PersGame = (() => {
+      const questions = [
+        { q: "Quando estás com amigos, tu normalmente...", opts: [
+          { t: "Falas bastante e animas o ambiente", k: "extro" },
+          { t: "Observas e falas quando tens algo a dizer", k: "intro" },
+          { t: "Adaptas-te conforme o ambiente", k: "flex" }
+        ]},
+        { q: "Diante de um problema difícil, a tua primeira reação é...", opts: [
+          { t: "Agir rápido e resolver", k: "acao" },
+          { t: "Pensar bem antes de decidir", k: "pens" },
+          { t: "Pedir opinião de alguém de confiança", k: "social" }
+        ]},
+        { q: "O teu fim de semana ideal seria...", opts: [
+          { t: "Sair e conhecer gente nova", k: "extro" },
+          { t: "Ficar em casa a relaxar", k: "intro" },
+          { t: "Um pouco dos dois", k: "flex" }
+        ]},
+        { q: "Quando alguém te critica, tu...", opts: [
+          { t: "Ficas chateado mas tentas melhorar", k: "sens" },
+          { t: "Analisas se faz sentido e segues", k: "pens" },
+          { t: "Defendes o teu ponto de vista", k: "acao" }
+        ]},
+        { q: "O que mais valorizas numa amizade?", opts: [
+          { t: "Lealdade e confiança", k: "sens" },
+          { t: "Conversas profundas", k: "pens" },
+          { t: "Diversão e aventuras", k: "extro" }
+        ]}
+      ];
+      const results = {
+        extro: { title: "O Comunicador", desc: "Tu és energético e sociável. Tens facilidade em fazer amigos e animar qualquer ambiente." },
+        intro: { title: "O Observador", desc: "Tu és mais reservado e pensativo. Observas bastante antes de agir e tens uma visão profunda." },
+        flex:  { title: "O Adaptável", desc: "Tu equilibra bem momentos sociais e momentos sozinho. Adaptas-te facilmente." },
+        acao:  { title: "O Determinado", desc: "Tu és prático e decidido. Não ficas parado quando há um problema." },
+        pens:  { title: "O Analítico", desc: "Tu pensas bastante antes de decidir. Gostas de entender o porquê das coisas." },
+        sens:  { title: "O Empático", desc: "Tu és sensível aos sentimentos dos outros e valorizas muito as relações." },
+        social:{ title: "O Colaborativo", desc: "Tu valorizas a opinião dos outros e gostas de trabalhar em equipa." }
+      };
+      let cur = 0, scores = {};
+      function start() {
+        cur = 0; scores = {};
+        document.getElementById('pers-box').style.display = 'block';
+        document.getElementById('pers-result').style.display = 'none';
+        show();
+      }
+      function show() {
+        const q = questions[cur];
+        document.getElementById('pers-question').textContent = q.q;
+        const box = document.getElementById('pers-options');
+        box.innerHTML = '';
+        q.opts.forEach(o => {
+          const btn = document.createElement('button');
+          btn.className = 'pers-opt';
+          btn.textContent = o.t;
+          btn.onclick = () => select(o.k);
+          box.appendChild(btn);
+        });
+      }
+      function select(k) {
+        scores[k] = (scores[k] || 0) + 1;
+        cur++;
+        if (cur < questions.length) show();
+        else {
+          let maxK = 'flex', max = 0;
+          for (const k in scores) if (scores[k] > max) { max = scores[k]; maxK = k; }
+          const r = results[maxK] || results.flex;
+          document.getElementById('pers-box').style.display = 'none';
+          document.getElementById('pers-result').style.display = 'block';
+          document.getElementById('pers-title').textContent = r.title;
+          document.getElementById('pers-desc').textContent = r.desc;
+        }
+      }
+      start();
+      return { start };
+    })();
+  </script>
 </body>
 </html>
